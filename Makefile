@@ -1,0 +1,36 @@
+NAME = exe
+SRCS =  src/main.c3
+SRCS += src/engine/main.c3 \
+	src/engine/scene.c3 \
+	src/engine/logger.c3 \
+	src/engine/gameobject.c3
+
+all: $(NAME)
+
+$(NAME): raylib c3c $(SRCS)
+	./c3/c3c compile -o $(NAME) $(SRCS) src/raylib.c3i -z libraylib.a
+
+raylib: libraylib.a src/raylib.c3i
+
+libraylib.a:
+	@wget https://github.com/c3lang/vendor/raw/refs/heads/main/libraries/raylib55.c3l/linux-x64/libraylib.a
+
+src/raylib.c3i:
+	@wget https://raw.githubusercontent.com/c3lang/vendor/refs/heads/main/libraries/raylib55.c3l/raylib.c3i
+	@mv raylib.c3i src 
+
+c3c: c3/c3c
+
+c3/c3c: 
+	@wget https://github.com/c3lang/c3c/releases/download/v0.7.2/c3-linux.tar.gz
+	@tar -xf c3-linux.tar.gz
+	@rm -fr c3-linux.tar.gz
+
+run: all
+	@./$(NAME)
+
+clean:
+	@rm -fr c3
+	@rm -fr src/raylib.c3i
+	@rm -fr $(NAME)
+	@rm -fr libraylib.a
