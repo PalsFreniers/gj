@@ -1,9 +1,15 @@
 NAME = exe
 SRCS =  src/main.c3
 SRCS += src/engine/main.c3 \
-	src/engine/scene.c3 \
-	src/engine/logger.c3 \
-	src/engine/gameobject.c3
+	src/engine/utils.c3 \
+        src/engine/scene.c3 \
+        src/engine/logger.c3 \
+	src/engine/message.c3 \
+        src/engine/gameobject.c3
+SRCS += src/asset/main.c3 \
+	src/asset/map.c3
+SRCS += src/objects/label.c3
+SRCS += src/player.c3
 
 all: $(NAME)
 

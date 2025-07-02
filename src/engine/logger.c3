@@ -1,7 +1,8 @@
 module engine::logger;
 import std::io;
+import libc;
 
-enum TColors : char (inline String c) {
+enum TColor : char (inline String c) {
         RESET  = "\e[0m",
         CYAN   = "\e[36m",
         GREEN  = "\e[32m",
@@ -9,22 +10,23 @@ enum TColors : char (inline String c) {
         RED    = "\e[31m",
 }
 
-macro color(TColor $c, String $str) {
-        return $c +++ $str +++ TColors.RESET;
+macro @color(TColor $c, String $str) {
+        return $c.c +++ $str +++ TColor.RESET.c;
 }
 
 enum LogLevel : char (inline String prefix){
-        DEBUG = color(TColors.CYAN, "[DEBUG]"),
-        INFO  = color(TColors.GREEN, "[INFO]"),
-        WARN  = color(TColors.YELLOW, "[WARNING]"),
-        ERROR = color(TColors.RED, "[ERROR]"),
+        DEBUG = @color(TColor.CYAN, "[DEBUG]"),
+        INFO  = @color(TColor.GREEN, "[INFO]"),
+        WARN  = @color(TColor.YELLOW, "[WARNING]"),
+        ERROR = @color(TColor.RED, "[ERROR]"),
 }
 
 alias Logger = String;
 
-fn void Logger.log(self, LogLevel lvl, String msg, args...) {
+macro void Logger.log(self, LogLevel lvl, String $msg, args...) {
         io::printf("%s '%s' => ", lvl, self);
-        io::printfn(msg, args);
+        libc::printf((ZString)$msg, args);
+        io::printn();
 }
 
 macro Logger.debug(self, $msg, args...) {
@@ -39,6 +41,7 @@ macro Logger.warn(self, $msg, args...) {
         self.log(LogLevel.WARN, $msg, args);
 }
 
-macro Logger.error(self, $msg, args...) {
+macro Logger.error(self, $msg, args...) @noreturn {
         self.log(LogLevel.ERROR, $msg, args);
+        unreachable("game crashed");
 }
