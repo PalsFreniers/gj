@@ -2,7 +2,7 @@ module engine::asset;
 import asset;
 import raylib5;
 
-alias TextureMap = AssetMap {Texture};
+alias TextureMap = AssetMap {Texture2D};
 alias ImageMap   = AssetMap {Image};
 alias SoundMap   = AssetMap {Sound};
 alias MusicMap   = AssetMap {Music};
@@ -28,7 +28,7 @@ macro getFullAssetPath(AssetType $type, name) {
         var $path = "./assets/";
         $switch($type):
                 $case AssetType.TEXTURE:
-                        $error("don't call this function for a texture");
+                        return "";
                 $case AssetType.IMAGE:
                         $path = $path +++ "images/";
                 $case AssetType.SOUND:
@@ -41,23 +41,23 @@ macro getFullAssetPath(AssetType $type, name) {
         return $path.concat(mem, name);
 }
 
-macro AssetManager.init(&self) => self.fonts["default"] = map::entry{Font}(rl::getFontDefault());
-
 macro AssetManager.get(&self, AssetType $type, name) {
         String path = getFullAssetPath($type, name);
         defer mem::free(path);
         $switch($type):
                 $case AssetType.TEXTURE:
-                        if(try self.textures[name]) {
+                        if START: (try self.textures[name]) {
+                                if(self.textures.getRef(name) == 0) break START;
                                 self.textures.ref(name);
                                 return self.textures[name]!!.data;
                         }
-                        Image i = rl::loadTextureFromImage(self.get(AssetType.IMAGE, path));
-                        if(!rl::isTextureValid(i)) engine::_log.error("unable to fetch texture: '%s'", path);
-                        self.textures[name] = map::entry{Texture}(i);
+                        Texture2D t = rl::loadTextureFromImage(self.get(AssetType.IMAGE, path));
+                        if(!rl::isTextureValid(t)) engine::_log.error("unable to fetch texture: '%s'", path);
+                        self.textures[name] = map::entry{Texture2D}(t);
                         return self.textures[name]!!.data;
                 $case AssetType.IMAGE:
-                        if(try self.images[name]) {
+                        if START: (try self.images[name]) {
+                                if(self.images.getRef(name) == 0) break START;
                                 self.images.ref(name);
                                 return self.images[name]!!.data;
                         }
@@ -66,7 +66,8 @@ macro AssetManager.get(&self, AssetType $type, name) {
                         self.images[name] = map::entry{Image}(i);
                         return self.images[name]!!.data;
                 $case AssetType.SOUND:
-                        if(try self.sounds[name]) {
+                        if START: (try self.sounds[name]) {
+                                if(self.sounds.getRef(name) == 0) break START;
                                 self.sounds.ref(name);
                                 return self.sounds[name]!!.data;
                         }
@@ -75,7 +76,8 @@ macro AssetManager.get(&self, AssetType $type, name) {
                         self.sounds[name] = map::entry{Sound}(m);
                         return self.sounds[name]!!.data;
                 $case AssetType.MUSIC:
-                        if(try self.musics[name]) {
+                        if START: (try self.musics[name]) {
+                                if(self.musics.getRef(name) == 0) break START;
                                 self.musics.ref(name);
                                 return self.musics[name]!!.data;
                         }
@@ -84,7 +86,9 @@ macro AssetManager.get(&self, AssetType $type, name) {
                         self.musics[name] = map::entry{Music}(m);
                         return self.musics[name]!!.data;
                 $case AssetType.FONT:
-                        if(try self.fonts[name]) {
+                        if(name == "default") return rl::getFontDefault();
+                        if START: (try self.fonts[name]) {
+                                if(self.fonts.getRef(name) == 0) break START;
                                 self.fonts.ref(name);
                                 return self.fonts[name]!!.data;
                         }

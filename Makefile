@@ -1,6 +1,7 @@
 NAME = exe
 SRCS =  src/main.c3
 SRCS += src/engine/main.c3 \
+	src/engine/math.c3 \
 	src/engine/utils.c3 \
         src/engine/scene.c3 \
         src/engine/logger.c3 \
@@ -8,8 +9,10 @@ SRCS += src/engine/main.c3 \
         src/engine/gameobject.c3
 SRCS += src/asset/main.c3 \
 	src/asset/map.c3
-SRCS += src/objects/label.c3
-SRCS += src/player.c3
+SRCS += src/objects/label.c3 \
+	src/objects/rect.c3
+SRCS += src/player.c3 \
+	src/appIcon.c3
 
 all: $(NAME)
 
@@ -28,12 +31,12 @@ src/raylib.c3i:
 c3c: c3/c3c
 
 c3/c3c: 
-	@wget https://github.com/c3lang/c3c/releases/download/v0.7.2/c3-linux.tar.gz
+	@wget https://github.com/c3lang/c3c/releases/download/v0.7.3/c3-linux.tar.gz
 	@tar -xf c3-linux.tar.gz
 	@rm -fr c3-linux.tar.gz
 
 run: all
-	@./$(NAME)
+	./$(NAME)
 
 clean:
 	@rm -fr c3

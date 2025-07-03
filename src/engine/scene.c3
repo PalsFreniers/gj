@@ -1,7 +1,9 @@
 module engine::scene;
 import std::collections::map;
+import std::collections::list;
 import engine::gameobject;
 import engine::message;
+import std::sort;
 
 alias ObjectMap = HashMap {String, IGameObject};
 
@@ -52,9 +54,15 @@ fn void Scene.update(&self) {
 }
 
 fn void Scene.draw(&self) {
+        List {IGameObject} objs;
 	self.objs.@each(; String k, IGameObject v) {
-		v.draw();
+                objs.push(v);
 	};
+        sort::quicksort(objs, fn int(IGameObject a, IGameObject b) => a.getZ() - b.getZ());
+        foreach(obj: objs) {
+                obj.draw();
+        }
+        objs.free();
 }
 
 fn void Scene.send(&self, String name, Message msg) {

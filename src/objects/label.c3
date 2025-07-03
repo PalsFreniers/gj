@@ -13,11 +13,12 @@ struct Label(IGameObject) {
         float size;
         float spacing;
         Color color;
+        int z;
         LabelMessageCallback onMessage;
         LabelUpdateCallback onUpdate;
 }
 
-macro new(String text, float[<2>] pos, float size = 20, float spacing = 1, Color color = rl::RAYWHITE, String font = "default") => mem::new(Label, {
+macro new(String text, float[<2>] pos, float size = 20, float spacing = 2.5, Color color = rl::RAYWHITE, String font = "default") => mem::new(Label, {
         .text = text,
         .pos = pos,
         .font = font,
@@ -38,13 +39,15 @@ fn void Label.recv(&self, Message msg) @dynamic {
         if(self.onMessage) self.onMessage(self, msg);
 }
 
-fn void Label.setPos(&self, float[<2>] pos) @dynamic {
-        self.pos = pos;
+fn void Label.setPos(&self, float[<2>] pos) @dynamic => self.pos = pos;
+fn float[<2>] Label.getPos(&self) @dynamic => self.pos;
+fn float[<2>] Label.getSize(&self) @dynamic {
+        Vector2 size = rl::measureTextEx(engine::_asset.getFont(self.font), (ZString)self.text, self.size, self.spacing);
+        return {size.x, size.y};
 }
-
-fn float[<2>] Label.getPos(&self) @dynamic {
-        return self.pos;
-}
+fn bool Label.collidable(&self) @dynamic => false;
+fn void Label.collide(&self, IGameObject other) @dynamic {}
+fn int Label.getZ(&self) @dynamic => self.z;
 
 fn void Label.update(&self) @dynamic {
         if(self.onUpdate) self.onUpdate(self);
@@ -53,3 +56,8 @@ fn void Label.update(&self) @dynamic {
 fn void Label.draw(&self) @dynamic {
         rl::drawTextEx(engine::_asset.getFont(self.font), (ZString)self.text, self.pos.vec2(), self.size, self.spacing, self.color);
 }
+
+fn void Label.setUpdateCB(&self, LabelUpdateCallback cb) => self.onUpdate = cb;
+fn void Label.setMessageCB(&self, LabelMessageCallback cb) => self.onMessage = cb;
+fn void Label.setZ(&self, int z) => self.z = z;
+fn void Label.setText(&self, String text) => self.text = text;
