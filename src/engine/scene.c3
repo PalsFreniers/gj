@@ -6,10 +6,12 @@ import engine::message;
 import std::sort;
 
 alias ObjectMap = HashMap {String, IGameObject};
+alias InitCallback = fn void(Scene*);
 
 struct Scene {
         ObjectMap objs;
         String name;
+        InitCallback initCB;
 }
 
 macro new(name) {
@@ -18,7 +20,10 @@ macro new(name) {
         return s;
 }
 
+fn void Scene.setInitCallback(&self, InitCallback cb) => self.initCB = cb;
+
 fn void Scene.load(&self) {
+        if(self.initCB != null) self.initCB(self);
         self.objs.@each(; String k, IGameObject v) {
                 v.init();
         };

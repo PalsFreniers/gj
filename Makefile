@@ -13,6 +13,13 @@ SRCS += src/objects/label.c3 \
 	src/objects/rect.c3
 SRCS += src/player.c3 \
 	src/appIcon.c3
+SRCS += src/scenes/main.c3 \
+	src/scenes/logo.c3 \
+	src/scenes/os.c3 \
+	src/scenes/desktop.c3 \
+	src/scenes/memo.c3 \
+	src/scenes/editor.c3 \
+	src/scenes/quit.c3
 
 all: $(NAME)
 
@@ -41,5 +48,9 @@ run: all
 clean:
 	@rm -fr c3
 	@rm -fr src/raylib.c3i
-	@rm -fr $(NAME)
 	@rm -fr libraylib.a
+	@rm -fr .build
+	@rm -fr memo.sav
+
+fclean: clean
+	@rm -fr $(NAME)

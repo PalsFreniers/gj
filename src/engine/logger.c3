@@ -25,8 +25,7 @@ alias Logger = String;
 
 macro void Logger.log(self, LogLevel lvl, String $msg, args...) {
         io::printf("%s '%s' => ", lvl, self);
-        libc::printf((ZString)$msg, args);
-        io::printn();
+        io::printfn($msg, ...args);
 }
 
 macro Logger.debug(self, $msg, args...) {

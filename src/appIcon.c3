@@ -66,8 +66,9 @@ fn void AppIcon.draw(&self) @dynamic {
                 .width = tex.width,
                 .height = tex.height,
         };
-        rl::drawTexturePro(engine::_asset.getTexture(self.texture), src, (Rectangle){self.pos.x, self.pos.y, self.size.x, self.size.y}, (float[<2>]){0, 0}.vec2(), 0, self.color);
+        rl::drawTexturePro(tex, src, (Rectangle){self.pos.x, self.pos.y + textSize.y + 10, self.size.x, self.size.y}, ((float[<2>]){0, 0}).vec2(), 0, self.color);
 }
 
 fn void AppIcon.setMessageCB(&self, AppIconMessageCallback cb) => self.onMessage = cb;
+fn void AppIcon.setOnClick(&self, AppIconClickCallback cb) => self.onClick = cb;
 fn void AppIcon.setZ(&self, int z) => self.z = z;

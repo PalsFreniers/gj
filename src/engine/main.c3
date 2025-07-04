@@ -5,6 +5,7 @@ import engine::message;
 import raylib5;
 import std::collections::list;
 import engine::asset;
+import scenes;
 
 alias GlobalManager = fn void();
 alias CatchMessage = fn void(Message);
@@ -20,6 +21,8 @@ CatchMessage v_CatchMessage @local;
 usz v_CurrentScene @local;
 Color v_Background @local;
 AssetManager v_AssetManager @local;
+bool v_HasShader @local;
+Shader v_Shader @local;
 
 fn void init() {
         rl::setTraceLogLevel(TraceLogLevel.NONE);
@@ -39,8 +42,10 @@ fn void run() {
                 if(v_Update != null) v_Update();
                 v_Manager[v_CurrentScene].update();
                 rl::beginDrawing();
+                if(v_HasShader) rl::beginShaderMode(v_Shader);
                 rl::clearBackground(v_Background);
                 v_Manager[v_CurrentScene].draw();
+                if(v_HasShader) rl::endShaderMode();
                 rl::endDrawing();
         }
 }
@@ -62,7 +67,7 @@ macro fullscreen() => rl::toggleFullscreen();
 macro quit() => v_Quit = true;
 macro addScene(scene) => v_Manager.push(scene);
 macro sendMessage(name, msg, scene = v_CurrentScene) {
-        if(name == "engine" && v_CatchMessage != null) {v_CatchMessage(msg);}
+        if(name == "engine" && v_CatchMessage != null) { v_CatchMessage(msg);}
         else {v_Manager[scene].send(name, msg);}
 }
 macro broadcastMessage(msg, scene = v_CurrentScene) {
@@ -77,7 +82,10 @@ macro onUpdate(f) => v_Update = f;
 macro onMessage(f) => v_CatchMessage = f;
 macro deltaTime() => rl::getFrameTime();
 
-macro loadScene  (scene) @local => v_Manager[scene].load();
+macro loadScene  (scene) @local {
+        v_Manager[scene].load();
+        _log.info("loaded scene: %s", v_Manager[scene].name);
+}
 macro unloadScene(scene) @local => v_Manager[scene].unload();
 
 macro gotoScene(scene) {
@@ -85,6 +93,13 @@ macro gotoScene(scene) {
         v_CurrentScene = scene;
         loadScene(v_CurrentScene);
 }
+
+macro setShader(shader) {
+        v_HasShader = true;
+        v_Shader = shader;
+}
+
+macro unsetShader() => v_HasShader = false;
 
 const PAUSE = msg::@new();
 alias SceneManager = List {Scene};
